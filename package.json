@@ -1,0 +1,16 @@
+{
+  "name": "voicepeak-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "elysia": "^0.7.20",
+    "@elysiajs/swagger": "^0.7.2"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.0"
+  }
+}
