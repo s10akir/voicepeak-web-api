@@ -7,7 +7,8 @@ const app = new Elysia();
 app.get("/", () => "Voicepeak WebAPI サーバーが起動しました");
 
 app.post("/synthesize", async ({ body }) => {
-    const { text } = await body.json();
+    // Elysiaではbodyはすでにパース済みのオブジェクト
+    const { text } = body as { text?: string };
     if (!text) {
         return { error: "textパラメータが必要です" };
     }
