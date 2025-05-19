@@ -1,9 +1,20 @@
 import { Elysia } from "elysia";
+import { swagger } from "@elysiajs/swagger";
 import { synthesizeVoice } from "./voicepeak";
 import { readFile, unlink } from "fs/promises";
 import { basename } from "path";
 
 const app = new Elysia();
+
+// Swaggerプラグインを有効化
+app.use(swagger({
+    documentation: {
+        info: {
+            title: "Voicepeak WebAPI",
+            version: "1.0.0"
+        }
+    }
+}));
 
 app.get("/", () => "Voicepeak WebAPI サーバーが起動しました");
 
