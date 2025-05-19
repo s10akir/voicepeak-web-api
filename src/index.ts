@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { synthesizeVoice, listNarrator, listEmotion } from "./voicepeak";
+import { enqueueSynthesize } from "./voicepeak-queue";
 import { readFile, unlink } from "fs/promises";
 import { basename } from "path";
 
@@ -36,7 +37,7 @@ app
                 set.status = 400;
                 return { error: "textは140文字以内で指定してください" };
             }
-            const result = await synthesizeVoice({ text, narrator, emotion, speed, pitch });
+            const result = await enqueueSynthesize({ text, narrator, emotion, speed, pitch });
             if (!result.success || !result.filePath) {
                 set.status = 500;
                 return { error: result.message };
