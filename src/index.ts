@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { synthesizeVoice } from "./voicepeak";
-import { readFile } from "fs/promises";
+import { readFile, unlink } from "fs/promises";
+import { basename } from "path";
 
 const app = new Elysia();
 
@@ -19,32 +20,14 @@ app.post("/synthesize", async ({ body, set }) => {
     }
     try {
         const data = await readFile(result.filePath);
+        const filename = basename(result.filePath);
         set.headers["Content-Type"] = "audio/wav";
-        set.headers["Content-Disposition"] = `attachment; filename="${result.filePath}"`;
+        set.headers["Content-Disposition"] = `attachment; filename="${filename}"`;
+        await unlink(result.filePath);
         return data;
     } catch {
         set.status = 500;
         return { error: "音声ファイルの読み込みに失敗しました" };
-    }
-});
-
-// ダウンロード用エンドポイント
-app.get("/download/:filename", async ({ params, set }) => {
-    const { filename } = params as { filename: string };
-    // セキュリティのためファイル名に不正な文字が含まれていないかチェック
-    if (!/^[\w.\-]+$/.test(filename)) {
-        set.status = 400;
-        return "不正なファイル名です";
-    }
-    const filePath = `./${filename}`;
-    try {
-        const data = await readFile(filePath);
-        set.headers["Content-Type"] = "audio/wav";
-        set.headers["Content-Disposition"] = `attachment; filename="${filename}"`;
-        return data;
-    } catch {
-        set.status = 404;
-        return "ファイルが見つかりません";
     }
 });
 

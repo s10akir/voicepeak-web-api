@@ -1,8 +1,12 @@
+import { tmpdir } from "os";
+import { join } from "path";
+
 /**
  * Voicepeakをコマンドラインから呼び出して音声合成を行う関数
  */
 export async function synthesizeVoice(text: string): Promise<{ success: boolean; message: string; filePath?: string }> {
-    const filePath = `output_${Date.now()}.wav`;
+    // OSの一時ディレクトリに出力
+    const filePath = join(tmpdir(), `output_${Date.now()}.wav`);
 
     try {
         const proc = Bun.spawn([
