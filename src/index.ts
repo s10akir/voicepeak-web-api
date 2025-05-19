@@ -32,6 +32,10 @@ app
                 set.status = 400;
                 return { error: "textパラメータが必要です" };
             }
+            if (text.length > 140) {
+                set.status = 400;
+                return { error: "textは140文字以内で指定してください" };
+            }
             const result = await synthesizeVoice({ text, narrator, emotion, speed, pitch });
             if (!result.success || !result.filePath) {
                 set.status = 500;
@@ -51,7 +55,7 @@ app
         },
         {
             body: t.Object({
-                text: t.String({ description: "読み上げるテキスト（必須）" }),
+                text: t.String({ description: "読み上げるテキスト（必須、最大140文字）", maxLength: 140 }),
                 narrator: t.Optional(t.String({ description: "話者名（例: 女声1）" })),
                 emotion: t.Optional(t.String({ description: "感情表現（例: happy=80,sad=20）" })),
                 speed: t.Optional(t.Number({ description: "話速（50-200）" })),
