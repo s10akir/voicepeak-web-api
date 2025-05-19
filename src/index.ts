@@ -17,9 +17,6 @@ app
         }
     }))
 
-    // ルート
-    .get("/", () => "Voicepeak WebAPI サーバーが起動しました")
-
     // 音声合成API
     .post("/synthesize", async ({ body, set }) => {
         const { text, narrator, emotion, speed, pitch } = body as {
