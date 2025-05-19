@@ -6,13 +6,26 @@ const app = new Elysia();
 
 app.get("/", () => "Voicepeak WebAPI サーバーが起動しました");
 
-app.post("/synthesize", async ({ body }) => {
+app.post("/synthesize", async ({ body, set }) => {
     const { text } = body as { text?: string };
     if (!text) {
+        set.status = 400;
         return { error: "textパラメータが必要です" };
     }
     const result = await synthesizeVoice(text);
-    return result;
+    if (!result.success || !result.filePath) {
+        set.status = 500;
+        return { error: result.message };
+    }
+    try {
+        const data = await readFile(result.filePath);
+        set.headers["Content-Type"] = "audio/wav";
+        set.headers["Content-Disposition"] = `attachment; filename="${result.filePath}"`;
+        return data;
+    } catch {
+        set.status = 500;
+        return { error: "音声ファイルの読み込みに失敗しました" };
+    }
 });
 
 // ダウンロード用エンドポイント
