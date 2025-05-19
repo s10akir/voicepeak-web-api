@@ -1,19 +1,38 @@
 import { Elysia } from "elysia";
-import { exec } from "bun";
 import { synthesizeVoice } from "./voicepeak";
+import { readFile } from "fs/promises";
 
 const app = new Elysia();
 
 app.get("/", () => "Voicepeak WebAPI サーバーが起動しました");
 
 app.post("/synthesize", async ({ body }) => {
-    // Elysiaではbodyはすでにパース済みのオブジェクト
     const { text } = body as { text?: string };
     if (!text) {
         return { error: "textパラメータが必要です" };
     }
     const result = await synthesizeVoice(text);
     return result;
+});
+
+// ダウンロード用エンドポイント
+app.get("/download/:filename", async ({ params, set }) => {
+    const { filename } = params as { filename: string };
+    // セキュリティのためファイル名に不正な文字が含まれていないかチェック
+    if (!/^[\w.\-]+$/.test(filename)) {
+        set.status = 400;
+        return "不正なファイル名です";
+    }
+    const filePath = `./${filename}`;
+    try {
+        const data = await readFile(filePath);
+        set.headers["Content-Type"] = "audio/wav";
+        set.headers["Content-Disposition"] = `attachment; filename="${filename}"`;
+        return data;
+    } catch {
+        set.status = 404;
+        return "ファイルが見つかりません";
+    }
 });
 
 app.listen(3000);
